@@ -1,0 +1,57 @@
+﻿@page "/login"
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+
+<h3>Login or Register</h3>
+
+@if (!IsUserLoggedIn)
+{
+    <input placeholder="Enter your email" @bind="Email" />
+    <br />
+    <input placeholder="Enter your username" @bind="Username" />
+    <br />
+    <button @onclick="LoginUser">Login / Register</button>
+}
+else
+{
+    <p>Welcome, @Username!</p>
+    <button @onclick="LogoutUser">Logout</button>
+}
+
+@code {
+    private string Email = "";
+    private string Username = "";
+    private bool IsUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var savedUser = await localStorage.GetItemAsync<string>("loggedInUser");
+        if (!string.IsNullOrWhiteSpace(savedUser))
+        {
+            Username = savedUser;
+            IsUserLoggedIn = true;
+        }
+    }
+
+    private async Task LoginUser()
+    {
+        if (!string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Email))
+        {
+            await localStorage.SetItemAsync("loggedInUser", Username);
+            await localStorage.SetItemAsync("userEmail", Email);
+            IsUserLoggedIn = true;
+            nav.NavigateTo("/");
+        }
+    }
+
+    private async Task LogoutUser()
+    {
+        await localStorage.RemoveItemAsync("loggedInUser");
+        await localStorage.RemoveItemAsync("userEmail");
+        await localStorage.RemoveItemAsync("cartItems");
+        IsUserLoggedIn = false;
+        Username = "";
+        Email = "";
+        nav.NavigateTo("/");
+    }
+}

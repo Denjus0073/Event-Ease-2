@@ -1,0 +1,62 @@
+﻿@using Event_Ease_2.Models
+
+<nav class="navbar">
+    <div class="nav-title">ShopEase</div>
+    <div class="nav-links">
+        <NavLink href="/" Match="NavLinkMatch.All">Home</NavLink>
+        <NavLink href="/products">Products</NavLink>
+        <NavLink href="/cart">
+            🛒 Cart
+            @if (CartItems?.Count > 0)
+            {
+                <span class="cart-count">(@CartItems.Count)</span>
+            }
+        </NavLink>
+        <NavLink href="/login">Login</NavLink>
+    </div>
+</nav>
+
+<style>
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0078D7;
+        padding: 10px 20px;
+        color: white;
+    }
+
+    .nav-title {
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .nav-links a {
+        margin-left: 15px;
+        color: white;
+        text-decoration: none;
+    }
+
+        .nav-links a.active {
+            font-weight: bold;
+            border-bottom: 2px solid white;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+    .cart-count {
+        background-color: red;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin-left: 4px;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public List<Product> CartItems { get; set; } = new();
+}

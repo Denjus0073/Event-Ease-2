@@ -1,0 +1,53 @@
+﻿@page "/cart"
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@using Event_Ease_2.Models
+
+<h2 class="featured-title">🛒 Your Shopping Cart</h2>
+
+@if (!IsUserLoggedIn)
+{
+    <p>You must <a href="/login">log in</a> to view your cart.</p>
+}
+else if (CartItems.Count == 0)
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in CartItems)
+        {
+            <li>
+                @item.Name - $@item.Price
+                <button @onclick="() => RemoveFromCart(item.ProductID)">Remove</button>
+            </li>
+        }
+    </ul>
+    <p><strong>Total:</strong> $@CartItems.Sum(p => p.Price)</p>
+}
+
+@code {
+    private List<Product> CartItems = new();
+    private bool IsUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await localStorage.GetItemAsync<string>("loggedInUser");
+        IsUserLoggedIn = !string.IsNullOrWhiteSpace(user);
+
+        if (IsUserLoggedIn)
+        {
+            var savedCart = await localStorage.GetItemAsync<List<Product>>("cartItems");
+            if (savedCart != null)
+            {
+                CartItems = savedCart;
+            }
+        }
+    }
+
+    private async Task RemoveFromCart(int productId)
+    {
+        CartItems = CartItems.Where(p => p.ProductID != productId).ToList();
+        await localStorage.SetItemAsync("cartItems", CartItems);
+    }
+}

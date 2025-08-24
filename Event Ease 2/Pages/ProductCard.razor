@@ -1,0 +1,22 @@
+﻿@using Event_Ease_2.Models
+
+<div class="product-card">
+    <h3>@Product.Name</h3>
+    <p><strong>Price:</strong> $@Product.Price</p>
+    <p><strong>Category:</strong> @Product.Category</p>
+    <button @onclick="HandleAddToCart" disabled="@( !IsUserLoggedIn )">
+        @(IsUserLoggedIn ? "Add to Cart" : "Login to Add")
+    </button>
+</div>
+
+@code {
+    [Parameter] public Product Product { get; set; } = new();
+    [Parameter] public EventCallback<Product> OnAddToCart { get; set; }
+    [Parameter] public bool IsUserLoggedIn { get; set; }
+
+    private async Task HandleAddToCart()
+    {
+        if (IsUserLoggedIn)
+            await OnAddToCart.InvokeAsync(Product);
+    }
+}

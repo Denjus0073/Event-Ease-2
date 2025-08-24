@@ -1,0 +1,54 @@
+﻿@page "/"
+@using Event_Ease_2.Models
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<h1 class="main-title">ShopEase</h1>
+<h2 class="featured-title">Featured Products</h2>
+
+<div class="product-list">
+    @foreach (var product in Products)
+    {
+        <ProductCard 
+    Product="product"
+    OnAddToCart="@AddToCart" IsUserLoggedIn="IsUserLoggedIn" />
+
+    }
+</div>
+
+<h2 class="cart-section">🛒 Cart</h2>
+<p class="empty-cart-message">@(CartItems.Count == 0 ? "Your cart is empty." : "")</p>
+
+@code {
+    private List<Product> Products = new() {
+        new Product { ProductID = 1, Name = "Laptop", Price = 999.99m, Category = "Electronics" },
+        new Product { ProductID = 2, Name = "Sneakers", Price = 79.99m, Category = "Footwear" },
+        new Product { ProductID = 3, Name = "Backpack", Price = 49.99m, Category = "Accessories" }
+    };
+
+    private List<Product> CartItems = new();
+    private bool IsUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var storedCart = await localStorage.GetItemAsync<List<Product>>("cartItems");
+        if (storedCart != null)
+            CartItems = storedCart;
+
+        var username = await localStorage.GetItemAsync<string>("loggedInUser");
+        IsUserLoggedIn = !string.IsNullOrWhiteSpace(username);
+    }
+
+    private async Task AddToCart(Product product)
+    {
+        if (IsUserLoggedIn)
+        {
+            CartItems.Add(product);
+            await localStorage.SetItemAsync("cartItems", CartItems);
+        }
+        else
+        {
+            // This could instead display a message on UI
+            Console.WriteLine("❌ You must be logged in to add items to the cart.");
+        }
+    }
+}

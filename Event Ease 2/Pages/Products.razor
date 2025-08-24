@@ -1,0 +1,52 @@
+﻿@page "/products"
+@using Event_Ease_2.Models
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<h2 class="featured-title">All Products</h2>
+
+<div class="product-list">
+    @foreach (var product in AllProducts)
+    {
+        <ProductCard Product="product"
+                     OnAddToCart="@AddToCart"
+                     IsUserLoggedIn="IsUserLoggedIn" />
+    }
+</div>
+
+@code {
+    private List<Product> AllProducts = new()
+    {
+        new Product { ProductID = 1, Name = "Laptop", Price = 999.99m, Category = "Electronics" },
+        new Product { ProductID = 2, Name = "Sneakers", Price = 79.99m, Category = "Footwear" },
+        new Product { ProductID = 3, Name = "Backpack", Price = 49.99m, Category = "Accessories" },
+        new Product { ProductID = 4, Name = "Smartwatch", Price = 149.99m, Category = "Electronics" },
+        new Product { ProductID = 5, Name = "Wireless Earbuds", Price = 89.99m, Category = "Electronics" },
+        new Product { ProductID = 6, Name = "Graphic T-Shirt", Price = 19.99m, Category = "Apparel" },
+        new Product { ProductID = 7, Name = "Water Bottle", Price = 14.99m, Category = "Accessories" },
+        new Product { ProductID = 8, Name = "Yoga Mat", Price = 29.99m, Category = "Fitness" },
+        new Product { ProductID = 9, Name = "Phone Case", Price = 12.99m, Category = "Electronics" },
+        new Product { ProductID = 10, Name = "Bluetooth Speaker", Price = 59.99m, Category = "Electronics" }
+    };
+
+    private bool IsUserLoggedIn = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await localStorage.GetItemAsync<string>("loggedInUser");
+        IsUserLoggedIn = !string.IsNullOrWhiteSpace(user);
+    }
+
+    private async Task AddToCart(Product product)
+    {
+        if (IsUserLoggedIn)
+        {
+            var cart = await localStorage.GetItemAsync<List<Product>>("cartItems") ?? new();
+            cart.Add(product);
+            await localStorage.SetItemAsync("cartItems", cart);
+        }
+        else
+        {
+            Console.WriteLine("❌ Login required to add items to cart.");
+        }
+    }
+}
